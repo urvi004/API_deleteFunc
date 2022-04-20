@@ -1,74 +1,65 @@
-import React, {useEffect, useState} from "react";
-import './App.css';
-
-function App(){
-  const [users,setUsers]= useState([])
-  useEffect(() => {
-    getUsers()
-  },[])
-
-  function getUsers()
-    {
+import React from 'react';  
     
-      fetch("https://jsonplaceholder.typicode.com/posts").then((result) =>{
-        result.json().then((resp)=>{
-          //console.warn("result",resp)
-          setUsers(resp)
-        })
-      })
-    }
-  
-
-
-  console.warn(users)
-
-  function deleteUser(id){
-    fetch(`https://jsonplaceholder.typicode.com/posts ${id}`,{
-      method: "DELETE"
-    }).then((result)=>{
-      result.json().then((resp)=>{
-        console.warn(resp)
-        getUsers()
-       
-      })
-    })
-    }
-  
-  return(
-    <div className="App">
-      <h1>users data</h1>
-      <table border = "1">
-        <tbody>
-        <tr>
-          <td>userId</td>
-          <td>ID</td>
-          <td>Title</td>
-          <td>Body</td>
-          <td>operations</td>
-        </tr>
-        {
-          users.map((item,i)=>
-            <tr key={i}>
-          <td>{ item.userId }</td>
-          <td>{ item.id }</td>
-          <td>{ item.title }</td>
-          <td>{ item.body }</td>
-          <td><button onClick={()=>deleteUser(item.id)}>Delete</button></td>
-        </tr>
-
-          )
-        }
-        </tbody>
-      </table>
-    </div>
-  )
-}
-//hi
-
-
-
-export default App;
-
-
-
-
+import axios from 'axios';  
+    
+export default class App extends React.Component {  
+  state = {  
+    posts: []  
+  }  
+    
+  componentDidMount() {  
+    axios.get(`https://jsonplaceholder.typicode.com/posts`)  
+      .then(res => {  
+        const posts = res.data;  
+        this.setState({ posts });  
+      })  
+  }  
+    
+  deleteRow(id, e){  
+    axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`)  
+      .then(res => {  
+        console.log(res);  
+        console.log(res.data);  
+    
+        const posts = this.state.posts.filter(item => item.id !== id);  
+        this.setState({ posts });  
+      })  
+    
+  }  
+    
+  render() {  
+    return (  
+      <div className="App">  
+        <h1> Fetched Data from APi</h1>  
+    
+        <table className="table table-bordered">  
+            <thead>  
+              <tr>  
+                  <th>UserID</th>
+				  <th>ID</th>    
+                  <th>Title</th>  
+                  <th>Body</th>  
+                  <th>Action</th>  
+              </tr>  
+            </thead>  
+    
+            <tbody>  
+              {this.state.posts.map((post) => (  
+                <tr>  
+                  <td>{post.userId}</td> 
+				  <td>{post.id}</td>  
+                  <td>{post.title}</td>  
+                  <td>{post.body}</td>  
+                  <td>  
+                    <button className="btn btn-danger" onClick={(e) => this.deleteRow(post.id, e)}>Delete</button>  
+                  </td>  
+                </tr>  
+              ))}  
+            </tbody>  
+    
+        </table>  
+      </div>  
+    )  
+  }  
+}  
+ 
